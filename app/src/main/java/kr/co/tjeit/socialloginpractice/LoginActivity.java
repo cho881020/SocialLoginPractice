@@ -22,6 +22,8 @@ import com.kakao.auth.IApplicationConfig;
 import com.kakao.auth.ISessionConfig;
 import com.kakao.auth.KakaoAdapter;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import kr.co.tjeit.socialloginpractice.data.User;
@@ -95,7 +97,32 @@ public class LoginActivity extends BaseActivity {
 
                         idOk = true;
 
-                        if (user.getPassword().equals(pwEdt.getText().toString())) {
+                        Toast.makeText(mContext, user.getPassword(), Toast.LENGTH_SHORT).show();
+
+
+                        String changedPw = "";
+                        try{
+                            MessageDigest sh = MessageDigest.getInstance("SHA-256");
+                            sh.update(pwEdt.getText().toString().getBytes());
+                            byte byteData[] = sh.digest();
+                            StringBuffer sb = new StringBuffer();
+                            for(int i = 0 ; i < byteData.length ; i++){
+                                sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
+                            }
+
+                            changedPw = sb.toString();
+
+
+
+                        }catch(NoSuchAlgorithmException e){
+
+                            e.printStackTrace();
+
+                            changedPw = null;
+
+                        }
+
+                        if (user.getPassword().equals(changedPw)) {
 //                            아이디도 일치하고, 비밀번호도 일치하므로 로그인 성공 Toast
                             pwOk = true;
 

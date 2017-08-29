@@ -10,9 +10,12 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.facebook.login.LoginManager;
 
+import kr.co.tjeit.socialloginpractice.data.User;
 import kr.co.tjeit.socialloginpractice.util.ContextUtil;
 
 public class MainActivity extends BaseActivity {
+
+    User me = null;
 
     private android.widget.TextView idTxt;
     private android.widget.TextView pwTxt;
@@ -27,6 +30,8 @@ public class MainActivity extends BaseActivity {
         bindViews();
         setupEvents();
         setValues();
+
+
     }
 
     @Override
@@ -50,12 +55,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void setValues() {
-        idTxt.setText(ContextUtil.getUserId(mContext));
-        pwTxt.setText(ContextUtil.getUserPw(mContext));
 
-        nameTxt.setText(ContextUtil.getUserName(mContext));
+        me = ContextUtil.getLoginUser(mContext);
 
-        Glide.with(this).load(ContextUtil.getUserProfileUrl(mContext)).into(profileImg);
+        idTxt.setText(me.getUserId());
+        pwTxt.setText(me.getPassword());
+        nameTxt.setText(me.getName());
+        Glide.with(this).load(me.getProfileURL()).into(profileImg);
 
 
     }

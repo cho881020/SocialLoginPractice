@@ -41,8 +41,12 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void run() {
 
+
                 Intent intent;
-                if (ContextUtil.getUserId(mContext).equals("")) {
+//                if 질문
+//                1. 로그인한 사용자의 아이디가 빈 칸인가? O : 로그아웃,  X: 로그인
+//                2. (수정안) 로그인한 사용자가 없는가? O : 로그아웃, X : 로그인
+                if (ContextUtil.getLoginUser(mContext) == null) {
 //                    로그인이 안되어있는 상태
                     intent = new Intent(SplashActivity.this, LoginActivity.class);
                 }
