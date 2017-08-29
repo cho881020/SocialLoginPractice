@@ -3,7 +3,6 @@ package kr.co.tjeit.socialloginpractice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,8 +13,16 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.kakao.auth.ApprovalType;
+import com.kakao.auth.AuthType;
+import com.kakao.auth.IApplicationConfig;
+import com.kakao.auth.ISessionConfig;
+import com.kakao.auth.KakaoAdapter;
+
+import java.util.Arrays;
 
 import kr.co.tjeit.socialloginpractice.data.User;
 import kr.co.tjeit.socialloginpractice.util.ContextUtil;
@@ -29,21 +36,43 @@ public class LoginActivity extends BaseActivity {
 
     CallbackManager cm;
     private com.facebook.login.widget.LoginButton fbLoginBtn;
-
+    private Button customFacebookLoginBtn;
+    private com.kakao.usermgmt.LoginButton comkakaologin;
+    private Button customKakaoLoginBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
         bindViews();
         setupEvents();
         setValues();
 
         GlobalData.initGlobalData();
+//        KakaoSDK.init(new KakaoSDKAdapter());
+
     }
 
     @Override
     public void setupEvents() {
+
+        customKakaoLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                comkakaologin.performClick();
+            }
+        });
+
+        customFacebookLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this,
+                        Arrays.asList("public_profile"));
+            }
+        });
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,10 +209,60 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void bindViews() {
+        this.comkakaologin = (com.kakao.usermgmt.LoginButton) findViewById(R.id.com_kakao_login);
+        this.customKakaoLoginBtn = (Button) findViewById(R.id.customKakaoLoginBtn);
+        this.customFacebookLoginBtn = (Button) findViewById(R.id.customFacebookLoginBtn);
         this.fbLoginBtn = (LoginButton) findViewById(R.id.fbLoginBtn);
         this.loginBtn = (Button) findViewById(R.id.loginBtn);
         this.pwEdt = (EditText) findViewById(R.id.pwEdt);
         this.idEdt = (EditText) findViewById(R.id.idEdt);
+    }
 
+    private static class KakaoSDKAdapter extends KakaoAdapter {
+        /**
+         * Session Config에 대해서는 default값들이 존재한다.
+         * 필요한 상황에서만 override해서 사용하면 됨.
+         *
+         * @return Session의 설정값.
+         */
+        @Override
+        public ISessionConfig getSessionConfig() {
+            return new ISessionConfig() {
+                @Override
+                public AuthType[] getAuthTypes() {
+                    return new AuthType[]{AuthType.KAKAO_LOGIN_ALL};
+                }
+
+                @Override
+                public boolean isUsingWebviewTimer() {
+                    return false;
+                }
+
+                @Override
+                public boolean isSecureMode() {
+                    return false;
+                }
+
+                @Override
+                public ApprovalType getApprovalType() {
+                    return ApprovalType.INDIVIDUAL;
+                }
+
+                @Override
+                public boolean isSaveFormData() {
+                    return true;
+                }
+            };
+        }
+
+        @Override
+        public IApplicationConfig getApplicationConfig() {
+            return new IApplicationConfig() {
+                @Override
+                public Context getApplicationContext() {
+                    return GlobalApplication.getGlobalApplicationContext();
+                }
+            };
+        }
     }
 }
