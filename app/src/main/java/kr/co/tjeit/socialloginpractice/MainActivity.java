@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.facebook.login.LoginManager;
 
 import kr.co.tjeit.socialloginpractice.util.ContextUtil;
 
@@ -36,6 +37,9 @@ public class MainActivity extends BaseActivity {
 
 //                로그아웃할때, 사용자 정보를 제거
                 ContextUtil.logout(mContext);
+
+//                로그아웃버튼이 눌리면, 페이스북에서도 강제로 로그아웃
+                LoginManager.getInstance().logOut();
 
                 Intent intent = new Intent(mContext, LoginActivity.class);
                 startActivity(intent);
