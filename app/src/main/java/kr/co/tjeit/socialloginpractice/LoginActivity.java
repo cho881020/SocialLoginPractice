@@ -68,8 +68,6 @@ public class LoginActivity extends BaseActivity {
 
 //        2. LoginActivity가 켜질때, 무조건 로그아웃 처리.
 
-        UserManagement.requestLogout(null);
-
 //        ※ 로그인에성공하면, 그사람의 아이디 / "비번없음" / 이름 / 프사 저장 후
 //          => MainActivity에서 보여주도록.
 
@@ -186,9 +184,11 @@ public class LoginActivity extends BaseActivity {
     public void setValues() {
 
 //        카카오톡 로그인 처리 과정.
-
         ksc = new KakaoSessionCallback();
         Session.getCurrentSession().addCallback(ksc);
+
+
+
 
 //        로그인 처리가 완료되면, 우리 앱에서도 반영하기 위해
 //        콜백을 만들어 등록하는 과정.
@@ -253,7 +253,7 @@ public class LoginActivity extends BaseActivity {
         pwEdt.setText(ContextUtil.getUserPw(mContext));
     }
 
-//    페이스북 OR 카카오톡 로그인 화면을 갔다가 돌아오면 콜백매니저가 자동으로 처리할 수 있도록 코딩
+//    페이스북 로그인 화면을 갔다가 돌아오면 콜백매니저가 자동으로 처리할 수 있도록 코딩
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -280,7 +280,6 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         public void onSessionOpened() {
-            Toast.makeText(mContext, "로그인 성공.", Toast.LENGTH_SHORT).show();
 
             UserManagement.requestMe(new MeResponseCallback() {
                 @Override
@@ -295,7 +294,15 @@ public class LoginActivity extends BaseActivity {
 
                 @Override
                 public void onSuccess(UserProfile result) {
-                    Toast.makeText(mContext, result.getNickname() + "님 접속", Toast.LENGTH_SHORT).show();
+                    ContextUtil.login(mContext,
+                            result.getId()+"",
+                            "없음",
+                            result.getNickname(),
+                            result.getProfileImagePath());
+
+                    Intent intent = new Intent(mContext, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             });
 
@@ -303,7 +310,7 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         public void onSessionOpenFailed(KakaoException exception) {
-            exception.printStackTrace();
+
         }
     }
 
