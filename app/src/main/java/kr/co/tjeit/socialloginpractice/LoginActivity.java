@@ -19,8 +19,15 @@ import com.facebook.login.widget.LoginButton;
 import com.kakao.auth.ApprovalType;
 import com.kakao.auth.AuthType;
 import com.kakao.auth.IApplicationConfig;
+import com.kakao.auth.ISessionCallback;
 import com.kakao.auth.ISessionConfig;
 import com.kakao.auth.KakaoAdapter;
+import com.kakao.auth.Session;
+import com.kakao.network.ErrorResult;
+import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.callback.MeResponseCallback;
+import com.kakao.usermgmt.response.model.UserProfile;
+import com.kakao.util.exception.KakaoException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -31,6 +38,8 @@ import kr.co.tjeit.socialloginpractice.util.ContextUtil;
 import kr.co.tjeit.socialloginpractice.util.GlobalData;
 
 public class LoginActivity extends BaseActivity {
+
+    KakaoSessionCallback ksc;
 
     private android.widget.EditText idEdt;
     private android.widget.EditText pwEdt;
@@ -53,6 +62,16 @@ public class LoginActivity extends BaseActivity {
         setValues();
 
         GlobalData.initGlobalData();
+
+//        1. 카카오톡 로그인에 성공하면
+//        어떤 사람이 로그인했는지 토스트로 띄워주기.
+
+//        2. LoginActivity가 켜질때, 무조건 로그아웃 처리.
+
+        UserManagement.requestLogout(null);
+
+//        ※ 로그인에성공하면, 그사람의 아이디 / "비번없음" / 이름 / 프사 저장 후
+//          => MainActivity에서 보여주도록.
 
     }
 
@@ -160,8 +179,16 @@ public class LoginActivity extends BaseActivity {
 
     }
 
+
+
+
     @Override
     public void setValues() {
+
+//        카카오톡 로그인 처리 과정.
+
+        ksc = new KakaoSessionCallback();
+        Session.getCurrentSession().addCallback(ksc);
 
 //        로그인 처리가 완료되면, 우리 앱에서도 반영하기 위해
 //        콜백을 만들어 등록하는 과정.
@@ -226,9 +253,14 @@ public class LoginActivity extends BaseActivity {
         pwEdt.setText(ContextUtil.getUserPw(mContext));
     }
 
-//    페이스북 로그인 화면을 갔다가 돌아오면 콜백매니저가 자동으로 처리할 수 있도록 코딩
+//    페이스북 OR 카카오톡 로그인 화면을 갔다가 돌아오면 콜백매니저가 자동으로 처리할 수 있도록 코딩
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (Session.getCurrentSession().handleActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
         cm.onActivityResult(requestCode, resultCode, data);
     }
@@ -242,6 +274,37 @@ public class LoginActivity extends BaseActivity {
         this.loginBtn = (Button) findViewById(R.id.loginBtn);
         this.pwEdt = (EditText) findViewById(R.id.pwEdt);
         this.idEdt = (EditText) findViewById(R.id.idEdt);
+    }
+
+    private class KakaoSessionCallback implements ISessionCallback {
+
+        @Override
+        public void onSessionOpened() {
+            Toast.makeText(mContext, "로그인 성공.", Toast.LENGTH_SHORT).show();
+
+            UserManagement.requestMe(new MeResponseCallback() {
+                @Override
+                public void onSessionClosed(ErrorResult errorResult) {
+
+                }
+
+                @Override
+                public void onNotSignedUp() {
+
+                }
+
+                @Override
+                public void onSuccess(UserProfile result) {
+                    Toast.makeText(mContext, result.getNickname() + "님 접속", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
+        @Override
+        public void onSessionOpenFailed(KakaoException exception) {
+            exception.printStackTrace();
+        }
     }
 
 }
