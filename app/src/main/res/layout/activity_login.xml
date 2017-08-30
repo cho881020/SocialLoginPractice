@@ -40,7 +40,7 @@
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/fbLoginBtn"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -48,6 +48,7 @@
         android:layout_marginBottom="30dp" />
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -67,7 +68,7 @@
     </LinearLayout>
 
     <com.kakao.usermgmt.LoginButton
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/com_kakao_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
