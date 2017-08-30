@@ -2,6 +2,7 @@ package kr.co.tjeit.socialloginpractice;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.kakao.auth.ApprovalType;
 import com.kakao.auth.AuthType;
@@ -16,6 +17,14 @@ import com.kakao.auth.KakaoSDK;
 
 public class GlobalApplication  extends Application {
     private static class KakaoSDKAdapter extends KakaoAdapter {
+
+        Context mContext;
+
+        public KakaoSDKAdapter(Context context) {
+            super();
+            mContext = context;
+        }
+
         /**
          * Session Config에 대해서는 default값들이 존재한다.
          * 필요한 상황에서만 override해서 사용하면 됨.
@@ -56,23 +65,20 @@ public class GlobalApplication  extends Application {
             return new IApplicationConfig() {
                 @Override
                 public Context getApplicationContext() {
-                    return GlobalApplication.getGlobalApplicationContext();
+                    return mContext;
                 }
             };
         }
-    }
-
-    public static Context getGlobalApplicationContext() {
-        return getGlobalApplicationContext();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        Log.d("앱", "실행준비중");
 
 
-        KakaoSDK.init(new KakaoSDKAdapter());
+        KakaoSDK.init(new KakaoSDKAdapter(getApplicationContext()));
 
     }
 }
